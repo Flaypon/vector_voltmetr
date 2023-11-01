@@ -22,13 +22,13 @@ HFLAGS = -j .text -j .data -O ihex
 #Options for avrdude to burn the hex file
 #MMCU model here according to avrdude options
 DUDEFLAGS = -c
-DUDEFLAGS += arduino
+DUDEFLAGS += usbasp
 DUDEFLAGS += -p
-DUDEFLAGS += m328p  
+DUDEFLAGS += t13
 DUDEFLAGS += -P 
-DUDEFLAGS += COM7 
+DUDEFLAGS += USBasp 
 DUDEFLAGS += -b 
-DUDEFLAGS += 19200
+DUDEFLAGS += 9600
 DUDEFLAGS += -U flash:w:$(MAIN_HEX_PATH):i
 
 # Sources files needed for building the application 
