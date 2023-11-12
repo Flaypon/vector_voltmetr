@@ -1,0 +1,6 @@
+[submodule "lib/GParser"]
+	path = lib/GParser
+	url = https://github.com/GyverLibs/GParser.git
+[submodule "lib/GyverPID"]
+	path = lib/GyverPID
+	url = https://github.com/GyverLibs/GyverPID.git
