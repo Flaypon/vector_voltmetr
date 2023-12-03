@@ -1,13 +1,17 @@
+#include <GyverMAX6675_SPI.h>
+
 //Скетч ручного управления ЦАП. Для установки напряжения необходимо отправить в порт значение в формате float
 #include <Wire.h>
 
-#define MCP4725_ADDRESS 0b01100001      //адрес I2C модуля, 01100 — зарезервировано, далее А2, А1, А0 
+#define MCP4725_ADDRESS 0b01100000      //адрес I2C модуля, 01100 — зарезервировано, далее А2, А1, А0 
 #define ADC_PIN A0
 #define COEFFICIENT 1
 
+GyverMAX6675_SPI<10> sens;                  // аппаратный SPI
 void setVoltage(float);
 
 float voltage = 0;  // сюда пишем напряжение
+float temp;
 
 void setup() {
   Serial.begin(9600);
@@ -24,7 +28,11 @@ void loop() {
     Serial.print(voltage, 3);
     Serial.println("V");
   }
-  float temp = analogRead(ADC_PIN) * COEFFICIENT; //пересчитываем значение напряжение в температуру, коэффициент вычислить и прописать в define
+  if (sens.readTemp()) // Запросить температуру (вернёт true если успешно)
+  {
+    temp = sens.getTemp();    // Получить температуру float)
+  } else Serial.println("Read temp error");
+//  float temp = analogRead(ADC_PIN) * COEFFICIENT; //пересчитываем значение напряжение в температуру, коэффициент вычислить и прописать в define
   setVoltage(voltage);                            //устанавливаем напряжение на выходе ЦАП
   Serial.print("Temp: ");
   Serial.println(temp, 1);
@@ -36,7 +44,7 @@ void loop() {
 
 void setVoltage(float voltage)
 {
-  uint8_t buffer[3];
+  uint8_t buffer[3]{0};
   buffer[0] = 0b01000000;            //записываем в buffer0 контрольный байт (010-Sets in Write mode)
   int bits = (4096.0 * voltage) / 5;  //формула для расчета значения напряжения (A0)
   buffer[1] = bits >> 4;              //записываем наиболее значимые биты

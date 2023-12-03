@@ -1,13 +1,32 @@
-#include <Wire.h>
+// Настройки перед подключением библиотеки
+// задать задержку переключения CLK в микросекундах для улучшения связи по длинным проводам
+// (для GyverMAX6675)
+//#define MAX6675_DELAY 10
 
-#define MCP4725_ADDRESS 0b01100001      //адрес I2C модуля, 01100 — зарезервировано, далее А2, А1, А0 
+// задать скорость SPI в Гц (умолч. 1000000 - 1 МГц) для улучшения связи по длинным проводам
+// (для GyverMAX6675_SPI)
+//#define MAX6675_SPI_SPEED 300000
+
+#define MCP4725_ADDRESS 0b01100000      //адрес I2C модуля, 01100 — зарезервировано, далее А2, А1, А0 
 #define ADC_PIN A0
 #define COEFFICIENT 1
-#define TARGET 500 //значение уставки в попугаях
+#define TARGET 37.0f //значение уставки в попугаях
 #define KP 12 //коэффициент P
 #define KI 0.4f //коэффициент I
 #define KD 60 //коэффициент D
 #define DT 50 //период вычисления и регулирования
+
+#include <GyverMAX6675_SPI.h>
+
+#include <Wire.h>
+
+
+GyverMAX6675_SPI<10> sens;                  // аппаратный SPI
+
+//Использование
+
+//int getTempInt();   // Получить температуру int
+
 
 void setVoltage(float voltage);
 
@@ -15,26 +34,30 @@ void setVoltage(float voltage);
 int computePID(float input, float setpoint, float kp, float ki, float kd, float dt, int minOut, int maxOut);
 
 float voltage = 0;  // сюда пишем управляющее напряжение
+float temp; // сюда пишем температуру
 
 void setup() {
   Serial.begin(9600);
   Wire.begin();  //стартуем I2C
-  pinMode(ADC_PIN, INPUT);
+//  pinMode(ADC_PIN, INPUT);
 }
 
 //основной цикл
 void loop() {
-  float temp = analogRead(ADC_PIN) * COEFFICIENT; //пересчитываем значение напряжение в температуру, коэффициент вычислить и прописать в define
-  voltage = computePID(temp, TARGET, KP, KI, KD, DT, 0, 5);
+  if (sens.readTemp()) // Запросить температуру (вернёт true если успешно)
+  {
+    temp = sens.getTemp();    // Получить температуру float)
+  } //else Serial.println("Read temp error");
+  voltage = computePID(temp, TARGET, KP, KI, KD, DT, 0, 4.99);
   setVoltage(voltage);                            //устанавливаем напряжение на выходе ЦАП
 //  Serial.print("target: ");
   Serial.println(TARGET);
 //  Serial.print("Temp: ");
-  Serial.println(temp, 1);
+  Serial.println(temp, 2);
 //  Serial.print("Voltage: ");
-  Serial.print(voltage, 3);
+  Serial.println(voltage, 2);
 //  Serial.println(" V");
-//  delay(1000);
+  delay(1000);
 }
 
 // (вход, установка, п, и, д, период в секундах, мин.выход, макс. выход)
