@@ -4,3 +4,12 @@
 [submodule "lib/GyverPID"]
 	path = lib/GyverPID
 	url = https://github.com/GyverLibs/GyverPID.git
+[submodule "lib/GyverNTC"]
+	path = lib/GyverNTC
+	url = git@github.com:GyverLibs/GyverNTC.git
+[submodule "lib/GyverMAX6675"]
+	path = lib/GyverMAX6675
+	url = git@github.com:GyverLibs/GyverMAX6675.git
+[submodule "lib/Adafruit_MAX31865"]
+	path = lib/Adafruit_MAX31865
+	url = git@github.com:adafruit/Adafruit_MAX31865.git
